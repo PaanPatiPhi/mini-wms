@@ -22,47 +22,47 @@
 > สัปดาห์ 1–2 | สถานะ: 🟡 กำลังทำ
 
 ### 1.1 Docker Compose
-- [ ] สร้างไฟล์ `docker-compose.yml` ที่ root
-- [ ] Define service `postgres` (image: postgres:15, env: DB name/user/pass, volume)
-- [ ] Define service `redis` (image: redis:7)
-- [ ] Define service `backend` (build: ./backend, port 8000, depends_on postgres+redis)
-- [ ] เพิ่ม healthcheck ให้ postgres
-- [ ] รัน `docker compose up` แล้วทดสอบว่า backend ต่อ postgres ได้
+- [x] สร้างไฟล์ `docker-compose.yml` ที่ root
+- [x] Define service `postgres` (image: postgres:15, env: DB name/user/pass, volume)
+- [x] Define service `redis` (image: redis:7)
+- [x] Define service `backend` (build: ./backend, port 8000, depends_on postgres+redis)
+- [x] เพิ่ม healthcheck ให้ postgres
+- [x] รัน `docker compose up` แล้วทดสอบว่า backend ต่อ postgres ได้
 
 ### 1.2 Dockerfile สำหรับ Backend
-- [ ] สร้าง `backend/Dockerfile`
-- [ ] ใช้ `python:3.12-slim` เป็น base image
-- [ ] COPY requirements.txt แล้ว `pip install`
-- [ ] COPY app/ และ set CMD เป็น uvicorn
+- [x] สร้าง `backend/Dockerfile`
+- [x] ใช้ `python:3.12-slim` เป็น base image
+- [x] COPY requirements.txt แล้ว `pip install`
+- [x] COPY app/ และ set CMD เป็น uvicorn
 
 ### 1.3 Database Schema (SQLAlchemy Models)
-- [ ] สร้างไฟล์ `app/models/__init__.py`
-- [ ] สร้าง `app/models/product.py` — ตาราง products (id, sku, name, description, weight, created_at)
-- [ ] สร้าง `app/models/location.py` — ตาราง locations (id, code, zone, row, col, type: shelf/inbound/outbound/charge)
-- [ ] สร้าง `app/models/inventory.py` — ตาราง inventory (id, product_id, location_id, quantity, updated_at)
-- [ ] สร้าง `app/models/agv.py` — ตาราง agvs (id, name, state, battery, current_row, current_col, created_at)
-- [ ] สร้าง `app/models/order.py` — ตาราง orders (id, status, created_at, completed_at)
-- [ ] สร้าง `app/models/order_item.py` — ตาราง order_items (id, order_id, product_id, quantity, picked)
-- [ ] สร้าง `app/models/task.py` — ตาราง tasks (id, agv_id, order_id, from_location_id, to_location_id, status, priority, created_at, completed_at)
-- [ ] สร้าง `app/models/agv_log.py` — ตาราง agv_logs (id, agv_id, task_id, from_row, from_col, to_row, to_col, timestamp)
+- [x] สร้างไฟล์ `app/models/__init__.py`
+- [x] สร้าง `app/models/product.py` — ตาราง products (id, sku, name, description, weight, created_at)
+- [x] สร้าง `app/models/location.py` — ตาราง locations (id, code, zone, row, col, type: shelf/inbound/outbound/charge)
+- [x] สร้าง `app/models/inventory.py` — ตาราง inventory (id, product_id, location_id, quantity, updated_at)
+- [x] สร้าง `app/models/agv.py` — ตาราง agvs (id, name, state, battery, current_row, current_col, created_at)
+- [x] สร้าง `app/models/order.py` — ตาราง orders (id, status, created_at, completed_at)
+- [x] สร้าง `app/models/order_item.py` — ตาราง order_items (id, order_id, product_id, quantity, picked)
+- [x] สร้าง `app/models/task.py` — ตาราง tasks (id, agv_id, order_id, from_location_id, to_location_id, status, priority, created_at, completed_at)
+- [x] สร้าง `app/models/agv_log.py` — ตาราง agv_logs (id, agv_id, task_id, from_row, from_col, to_row, to_col, timestamp)
 
 ### 1.4 Alembic Migration
-- [ ] รัน `alembic init alembic` ใน backend/
-- [ ] แก้ `alembic/env.py` ให้ import Base จาก models
-- [ ] รัน `alembic revision --autogenerate -m "initial tables"`
-- [ ] รัน `alembic upgrade head` เพื่อสร้าง table จริงใน postgres
+- [x] รัน `alembic init alembic` ใน backend/
+- [x] แก้ `alembic/env.py` ให้ import Base จาก models
+- [x] รัน `alembic revision --autogenerate -m "initial tables"`
+- [x] รัน `alembic upgrade head` เพื่อสร้าง table จริงใน postgres
 
 ### 1.5 Seed Data
-- [ ] สร้าง `app/seed.py`
-- [ ] Seed products 10 รายการ (ชื่อ, SKU, น้ำหนัก)
-- [ ] Seed locations ตาม warehouse grid (shelves A1–I8, inbound, outbound, charging)
-- [ ] Seed inventory (กระจายสินค้าไปตาม shelf ต่าง ๆ)
-- [ ] Seed AGV 3 ตัว (AGV-01, AGV-02, AGV-03) state=idle, battery=100
+- [x] สร้าง `app/seed.py`
+- [x] Seed products 10 รายการ (ชื่อ, SKU, น้ำหนัก)
+- [x] Seed locations ตาม warehouse grid (shelves A1–I8, inbound, outbound, charging)
+- [x] Seed inventory (กระจายสินค้าไปตาม shelf ต่าง ๆ)
+- [x] Seed AGV 3 ตัว (AGV-01, AGV-02, AGV-03) state=idle, battery=100
 
 ### 1.6 README เบื้องต้น
-- [ ] สร้าง `README.md` ที่ root
-- [ ] เขียน: Project overview, Tech stack, Local setup guide (`docker compose up`)
-- [ ] เพิ่ม architecture diagram (ทำทีหลังได้)
+- [x] สร้าง `README.md` ที่ root
+- [x] เขียน: Project overview, Tech stack, Local setup guide (`docker compose up`)
+- [x] เพิ่ม architecture diagram (ทำทีหลังได้)
 
 **Deliverable:** `docker compose up` แล้วระบบทั้งหมดขึ้น, table ครบใน postgres, seed data พร้อม
 
@@ -72,45 +72,45 @@
 > สัปดาห์ 3–5 | สถานะ: ⬜ ยังไม่เริ่ม
 
 ### 2.1 Schemas (Pydantic)
-- [ ] สร้าง `app/schemas/product.py` — ProductCreate, ProductRead
-- [ ] สร้าง `app/schemas/location.py` — LocationRead
-- [ ] สร้าง `app/schemas/inventory.py` — InventoryRead, InventoryUpdate
-- [ ] สร้าง `app/schemas/order.py` — OrderCreate, OrderRead, OrderStatus
-- [ ] สร้าง `app/schemas/task.py` — TaskCreate, TaskRead, TaskStatus
-- [ ] สร้าง `app/schemas/agv.py` — AGVRead, AGVStatus
+- [x] สร้าง `app/schemas/product.py` — ProductCreate, ProductRead
+- [x] สร้าง `app/schemas/location.py` — LocationRead
+- [x] สร้าง `app/schemas/inventory.py` — InventoryRead, InventoryUpdate
+- [x] สร้าง `app/schemas/order.py` — OrderCreate, OrderRead, OrderStatus
+- [x] สร้าง `app/schemas/task.py` — TaskCreate, TaskRead, TaskStatus
+- [x] สร้าง `app/schemas/agv.py` — AGVRead, AGVStatus
 
 ### 2.2 Inventory API
-- [ ] สร้าง `app/routers/inventory.py`
-- [ ] `GET /inventory` — ดูสินค้าทั้งหมดพร้อม location
-- [ ] `GET /inventory/{product_id}` — ดูสินค้าชิ้นนั้น
-- [ ] `PUT /inventory/{id}` — อัปเดต quantity
-- [ ] `GET /inventory/low-stock` — สินค้าที่ quantity < threshold
+- [x] สร้าง `app/routers/inventory.py`
+- [x] `GET /inventory` — ดูสินค้าทั้งหมดพร้อม location
+- [x] `GET /inventory/{product_id}` — ดูสินค้าชิ้นนั้น
+- [x] `PUT /inventory/{id}` — อัปเดต quantity
+- [x] `GET /inventory/low-stock` — สินค้าที่ quantity < threshold
 
 ### 2.3 Order API
-- [ ] สร้าง `app/routers/orders.py`
-- [ ] `POST /orders` — สร้าง order พร้อม items
-- [ ] `GET /orders` — ดู order ทั้งหมด (filter by status)
-- [ ] `GET /orders/{id}` — ดู order detail พร้อม items
-- [ ] `PATCH /orders/{id}/status` — อัปเดต status (pending → picking → packed → dispatched)
-- [ ] Auto-generate pick list เมื่อสร้าง order (หา location ของแต่ละ product อัตโนมัติ)
+- [x] สร้าง `app/routers/orders.py`
+- [x] `POST /orders` — สร้าง order พร้อม items
+- [x] `GET /orders` — ดู order ทั้งหมด (filter by status)
+- [x] `GET /orders/{id}` — ดู order detail พร้อม items
+- [x] `PATCH /orders/{id}/status` — อัปเดต status (pending → picking → packed → dispatched)
+- [x] Auto-generate pick list เมื่อสร้าง order (หา location ของแต่ละ product อัตโนมัติ)
 
 ### 2.4 AGV API
-- [ ] สร้าง `app/routers/agvs.py`
-- [ ] `GET /agvs` — ดู AGV ทั้งหมดพร้อม state
-- [ ] `GET /agvs/{id}` — ดู AGV ชิ้นนั้น
-- [ ] `PATCH /agvs/{id}/state` — อัปเดต state (สำหรับ simulator ใช้)
+- [x] สร้าง `app/routers/agvs.py`
+- [x] `GET /agvs` — ดู AGV ทั้งหมดพร้อม state
+- [x] `GET /agvs/{id}` — ดู AGV ชิ้นนั้น
+- [x] `PATCH /agvs/{id}/state` — อัปเดต state (สำหรับ simulator ใช้)
 
 ### 2.5 Task API
-- [ ] สร้าง `app/routers/tasks.py`
-- [ ] `POST /tasks` — สร้าง task (from, to, priority, agv_id)
-- [ ] `GET /tasks` — ดู task ทั้งหมด (filter by status/agv)
-- [ ] `GET /tasks/{id}` — ดู task detail
-- [ ] `PATCH /tasks/{id}/status` — อัปเดต status
-- [ ] Auto-assign: หา AGV ที่ idle แล้ว assign ให้อัตโนมัติ
+- [x] สร้าง `app/routers/tasks.py`
+- [x] `POST /tasks` — สร้าง task (from, to, priority, agv_id)
+- [x] `GET /tasks` — ดู task ทั้งหมด (filter by status/agv)
+- [x] `GET /tasks/{id}` — ดู task detail
+- [x] `PATCH /tasks/{id}/status` — อัปเดต status
+- [x] Auto-assign: หา AGV ที่ idle แล้ว assign ให้อัตโนมัติ
 
 ### 2.6 Register Routers ใน main.py
-- [ ] `include_router` ทุก router ใน `main.py`
-- [ ] เพิ่ม prefix เช่น `/api/v1/orders`
+- [x] `include_router` ทุก router ใน `main.py`
+- [x] เพิ่ม prefix เช่น `/api/v1/orders`
 
 ### 2.7 Authentication (JWT)
 - [ ] ลง `pip install python-jose[cryptography] passlib[bcrypt]`

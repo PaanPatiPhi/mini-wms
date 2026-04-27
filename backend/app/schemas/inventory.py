@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from datetime import datetime
 from app.schemas.product import ProductRead
 from app.schemas.location import LocationRead
@@ -9,14 +9,13 @@ class InventoryRead(BaseModel):
     แสดงข้อมูล product และ location แบบ nested
     เช่น { product: {name: "หน้ากาก"}, location: {code: "A1"}, quantity: 50 }
     """
+    model_config = ConfigDict(from_attributes=True)  
     id: int
     quantity: int
     updated_at: datetime
     product: ProductRead      # ดึงข้อมูล product มาแสดงด้วยเลย
     location: LocationRead    # ดึงข้อมูล location มาแสดงด้วยเลย
 
-    class Config:
-        from_attributes = True
 
 class InventoryUpdate(BaseModel):
     """

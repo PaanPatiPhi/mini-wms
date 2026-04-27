@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from datetime import datetime
 
 class TaskCreate(BaseModel):
@@ -16,6 +16,8 @@ class TaskRead(BaseModel):
     """
     ข้อมูล task ที่ส่งกลับไปให้ frontend
     """
+    model_config = ConfigDict(from_attributes=True)  
+
     id: int
     status: str             # queued, running, done, failed
     priority: str
@@ -25,6 +27,3 @@ class TaskRead(BaseModel):
     order_id: int | None = None
     created_at: datetime
     completed_at: datetime | None = None
-
-    class Config:
-        from_attributes = True

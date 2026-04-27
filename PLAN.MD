@@ -113,17 +113,17 @@
 - [x] เพิ่ม prefix เช่น `/api/v1/orders`
 
 ### 2.7 Authentication (JWT)
-- [ ] ลง `pip install python-jose[cryptography] passlib[bcrypt]`
-- [ ] สร้าง `app/models/user.py` — ตาราง users (id, email, hashed_password, role)
-- [ ] สร้าง `app/routers/auth.py`
-- [ ] `POST /auth/register` — สมัครสมาชิก
-- [ ] `POST /auth/login` — login รับ JWT token กลับมา
-- [ ] สร้าง dependency `get_current_user` สำหรับ protect routes
+- [x] ลง `pip install python-jose[cryptography] passlib[bcrypt]`
+- [x] สร้าง `app/models/user.py` — ตาราง users (id, email, hashed_password, role)
+- [x] สร้าง `app/routers/auth.py`
+- [x] `POST /auth/register` — สมัครสมาชิก
+- [x] `POST /auth/login` — login รับ JWT token กลับมา
+- [x] สร้าง dependency `get_current_user` สำหรับ protect routes
 
 ### 2.8 Testing
-- [ ] ลง `pip install pytest httpx`
-- [ ] สร้าง `tests/test_orders.py` — ทดสอบ create order, get order
-- [ ] สร้าง `tests/test_inventory.py` — ทดสอบ get inventory
+- [x] ลง `pip install pytest httpx`
+- [x] สร้าง `tests/test_orders.py` — ทดสอบ create order, get order
+- [x] สร้าง `tests/test_inventory.py` — ทดสอบ get inventory
 - [ ] รัน `pytest` ให้ผ่านทุก test
 
 **Deliverable:** Swagger UI ครบทุก endpoint, ทดสอบผ่าน Swagger ได้, pytest ผ่าน

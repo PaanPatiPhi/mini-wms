@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from datetime import datetime
 
 # BaseModel คือ "แม่แบบ" ของ Pydantic
@@ -25,8 +25,7 @@ class ProductRead(ProductBase):
     ใช้ตอน backend ส่งข้อมูลกลับไปให้ frontend
     มี id และ created_at เพิ่มมาด้วย
     """
+    model_config = ConfigDict(from_attributes=True)  
+
     id: int
     created_at: datetime
-
-    class Config:
-        from_attributes = True  # บอกให้ Pydantic อ่านข้อมูลจาก SQLAlchemy model ได้

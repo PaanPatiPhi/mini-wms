@@ -1,11 +1,14 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from datetime import datetime
 
 class AGVRead(BaseModel):
+    
     """
     ข้อมูล AGV ที่ส่งกลับไปให้ frontend
     frontend จะเอาไปแสดงบน warehouse map
     """
+    model_config = ConfigDict(from_attributes=True)  
+
     id: int
     name: str           # เช่น "AGV-01"
     state: str          # idle, moving, picking, delivering, charging
@@ -13,8 +16,6 @@ class AGVRead(BaseModel):
     current_row: int    # ตำแหน่งปัจจุบันบน grid
     current_col: int
 
-    class Config:
-        from_attributes = True
 
 class AGVStateUpdate(BaseModel):
     """

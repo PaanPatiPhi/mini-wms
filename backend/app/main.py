@@ -3,10 +3,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from app.routers import inventory, orders, agvs, tasks
+from app.routers import inventory, orders, agvs, tasks, auth
 
 app = FastAPI(title="Mini WMS", version="0.1.0", description="Warehouse Management System with Mock AGV")
 
+app.include_router(auth.router, prefix="/api/v1")
 app.include_router(inventory.router, prefix="/api/v1")
 app.include_router(orders.router, prefix="/api/v1")
 app.include_router(agvs.router, prefix="/api/v1")

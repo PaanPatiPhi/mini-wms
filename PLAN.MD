@@ -8,324 +8,197 @@
 
 ---
 
-## สถานะปัจจุบัน
+## Branch Strategy
 
-- [x] ติดตั้ง Python, Docker Desktop
-- [x] สร้าง project structure
-- [x] FastAPI skeleton รันได้ (`/` และ `/health`)
-- [x] `.env`, `.gitignore`, `requirements.txt` ครบ
-- [x] Push ขึ้น GitHub แล้ว
+```
+main     — stable, deploy ได้เสมอ
+dev      — รวม feature ที่เสร็จแล้ว
+feature/ — แตกจาก dev ทำทีละ phase
+```
 
 ---
 
 ## Phase 1 — Foundation & Data Model
-> สัปดาห์ 1–2 | สถานะ: 🟡 กำลังทำ
+> สถานะ: ✅ เสร็จแล้ว | merge เข้า main แล้ว
 
-### 1.1 Docker Compose
-- [x] สร้างไฟล์ `docker-compose.yml` ที่ root
-- [x] Define service `postgres` (image: postgres:15, env: DB name/user/pass, volume)
-- [x] Define service `redis` (image: redis:7)
-- [x] Define service `backend` (build: ./backend, port 8000, depends_on postgres+redis)
-- [x] เพิ่ม healthcheck ให้ postgres
-- [x] รัน `docker compose up` แล้วทดสอบว่า backend ต่อ postgres ได้
-
-### 1.2 Dockerfile สำหรับ Backend
-- [x] สร้าง `backend/Dockerfile`
-- [x] ใช้ `python:3.12-slim` เป็น base image
-- [x] COPY requirements.txt แล้ว `pip install`
-- [x] COPY app/ และ set CMD เป็น uvicorn
-
-### 1.3 Database Schema (SQLAlchemy Models)
-- [x] สร้างไฟล์ `app/models/__init__.py`
-- [x] สร้าง `app/models/product.py` — ตาราง products (id, sku, name, description, weight, created_at)
-- [x] สร้าง `app/models/location.py` — ตาราง locations (id, code, zone, row, col, type: shelf/inbound/outbound/charge)
-- [x] สร้าง `app/models/inventory.py` — ตาราง inventory (id, product_id, location_id, quantity, updated_at)
-- [x] สร้าง `app/models/agv.py` — ตาราง agvs (id, name, state, battery, current_row, current_col, created_at)
-- [x] สร้าง `app/models/order.py` — ตาราง orders (id, status, created_at, completed_at)
-- [x] สร้าง `app/models/order_item.py` — ตาราง order_items (id, order_id, product_id, quantity, picked)
-- [x] สร้าง `app/models/task.py` — ตาราง tasks (id, agv_id, order_id, from_location_id, to_location_id, status, priority, created_at, completed_at)
-- [x] สร้าง `app/models/agv_log.py` — ตาราง agv_logs (id, agv_id, task_id, from_row, from_col, to_row, to_col, timestamp)
-
-### 1.4 Alembic Migration
-- [x] รัน `alembic init alembic` ใน backend/
-- [x] แก้ `alembic/env.py` ให้ import Base จาก models
-- [x] รัน `alembic revision --autogenerate -m "initial tables"`
-- [x] รัน `alembic upgrade head` เพื่อสร้าง table จริงใน postgres
-
-### 1.5 Seed Data
-- [x] สร้าง `app/seed.py`
-- [x] Seed products 10 รายการ (ชื่อ, SKU, น้ำหนัก)
-- [x] Seed locations ตาม warehouse grid (shelves A1–I8, inbound, outbound, charging)
-- [x] Seed inventory (กระจายสินค้าไปตาม shelf ต่าง ๆ)
-- [x] Seed AGV 3 ตัว (AGV-01, AGV-02, AGV-03) state=idle, battery=100
-
-### 1.6 README เบื้องต้น
-- [x] สร้าง `README.md` ที่ root
-- [x] เขียน: Project overview, Tech stack, Local setup guide (`docker compose up`)
-- [x] เพิ่ม architecture diagram (ทำทีหลังได้)
-
-**Deliverable:** `docker compose up` แล้วระบบทั้งหมดขึ้น, table ครบใน postgres, seed data พร้อม
+- [x] Docker Compose: postgres + redis + backend
+- [x] Dockerfile สำหรับ backend (python:3.12-slim)
+- [x] Database Schema: 8 tables
+- [x] Alembic migration: initial tables
+- [x] Seed data: products 10 รายการ, locations, inventory, AGV 3 ตัว
+- [x] README เบื้องต้น
 
 ---
 
 ## Phase 2 — Core WMS API
-> สัปดาห์ 3–5 | สถานะ: ⬜ ยังไม่เริ่ม
+> สถานะ: ✅ เสร็จแล้ว | merge เข้า dev แล้ว
 
-### 2.1 Schemas (Pydantic)
-- [x] สร้าง `app/schemas/product.py` — ProductCreate, ProductRead
-- [x] สร้าง `app/schemas/location.py` — LocationRead
-- [x] สร้าง `app/schemas/inventory.py` — InventoryRead, InventoryUpdate
-- [x] สร้าง `app/schemas/order.py` — OrderCreate, OrderRead, OrderStatus
-- [x] สร้าง `app/schemas/task.py` — TaskCreate, TaskRead, TaskStatus
-- [x] สร้าง `app/schemas/agv.py` — AGVRead, AGVStatus
-
-### 2.2 Inventory API
-- [x] สร้าง `app/routers/inventory.py`
-- [x] `GET /inventory` — ดูสินค้าทั้งหมดพร้อม location
-- [x] `GET /inventory/{product_id}` — ดูสินค้าชิ้นนั้น
-- [x] `PUT /inventory/{id}` — อัปเดต quantity
-- [x] `GET /inventory/low-stock` — สินค้าที่ quantity < threshold
-
-### 2.3 Order API
-- [x] สร้าง `app/routers/orders.py`
-- [x] `POST /orders` — สร้าง order พร้อม items
-- [x] `GET /orders` — ดู order ทั้งหมด (filter by status)
-- [x] `GET /orders/{id}` — ดู order detail พร้อม items
-- [x] `PATCH /orders/{id}/status` — อัปเดต status (pending → picking → packed → dispatched)
-- [x] Auto-generate pick list เมื่อสร้าง order (หา location ของแต่ละ product อัตโนมัติ)
-
-### 2.4 AGV API
-- [x] สร้าง `app/routers/agvs.py`
-- [x] `GET /agvs` — ดู AGV ทั้งหมดพร้อม state
-- [x] `GET /agvs/{id}` — ดู AGV ชิ้นนั้น
-- [x] `PATCH /agvs/{id}/state` — อัปเดต state (สำหรับ simulator ใช้)
-
-### 2.5 Task API
-- [x] สร้าง `app/routers/tasks.py`
-- [x] `POST /tasks` — สร้าง task (from, to, priority, agv_id)
-- [x] `GET /tasks` — ดู task ทั้งหมด (filter by status/agv)
-- [x] `GET /tasks/{id}` — ดู task detail
-- [x] `PATCH /tasks/{id}/status` — อัปเดต status
-- [x] Auto-assign: หา AGV ที่ idle แล้ว assign ให้อัตโนมัติ
-
-### 2.6 Register Routers ใน main.py
-- [x] `include_router` ทุก router ใน `main.py`
-- [x] เพิ่ม prefix เช่น `/api/v1/orders`
-
-### 2.7 Authentication (JWT)
-- [x] ลง `pip install python-jose[cryptography] passlib[bcrypt]`
-- [x] สร้าง `app/models/user.py` — ตาราง users (id, email, hashed_password, role)
-- [x] สร้าง `app/routers/auth.py`
-- [x] `POST /auth/register` — สมัครสมาชิก
-- [x] `POST /auth/login` — login รับ JWT token กลับมา
-- [x] สร้าง dependency `get_current_user` สำหรับ protect routes
-
-### 2.8 Testing
-- [x] ลง `pip install pytest httpx`
-- [x] สร้าง `tests/test_orders.py` — ทดสอบ create order, get order
-- [x] สร้าง `tests/test_inventory.py` — ทดสอบ get inventory
-- [ ] รัน `pytest` ให้ผ่านทุก test
-
-**Deliverable:** Swagger UI ครบทุก endpoint, ทดสอบผ่าน Swagger ได้, pytest ผ่าน
+- [x] Schemas (Pydantic v2 ConfigDict): product, location, inventory, order, agv, task, user
+- [x] Inventory API: GET all, GET by id, GET low-stock, PUT quantity
+- [x] Order API: POST create (stock check), GET all/filter, GET by id, PATCH status flow
+- [x] AGV API: GET all, GET by id, PATCH state
+- [x] Task API: POST create (auto-assign), GET all/filter, GET by id, PATCH status
+- [x] Location API: GET all, GET by id (เพิ่มระหว่าง Phase 3)
+- [x] Register routers ใน main.py (/api/v1/ prefix)
+- [x] JWT Auth: register, login, get_current_user, get_admin_user
+- [x] Unit tests (pytest): 7/7 passed
+- [x] Fix Pydantic v2 warnings (ConfigDict)
 
 ---
 
 ## Phase 3 — AGV Simulator + Real-time
-> สัปดาห์ 6–8 | สถานะ: ⬜ ยังไม่เริ่ม
+> สถานะ: ✅ เสร็จแล้ว | Branch: feature/phase3-agv-simulator
 
-### 3.1 Warehouse Grid
-- [ ] สร้าง `simulator/grid.py`
-- [ ] Define ROWS=12, COLS=16
-- [ ] Map cell types: 0=aisle, 1=shelf, 2=inbound, 3=outbound, 4=charge
-- [ ] ตรงกับ location table ใน database
+- [x] simulator/grid.py — warehouse grid 12×16, cell types, is_walkable(), get_neighbors()
+- [x] simulator/pathfinder.py — BFS algorithm, obstacle avoidance, fallback
+- [x] simulator/agv_agent.py — state machine (idle→moving→picking→delivering→idle), battery drain, auto-dock, httpx API calls
+- [x] simulator/dispatcher.py — poll tasks ทุก 2 วินาที, priority sort, auto-assign, follow_redirects
+- [x] simulator/publisher.py — Redis Pub/Sub broadcast ทุก 500ms
+- [x] simulator/main.py — asyncio.gather(), load AGVs from DB
+- [x] backend/app/routers/ws.py — WebSocket /ws/agv, ConnectionManager, Redis subscribe
+- [x] Bug fix: update_state_in_db(DELIVER_DELAY) → update_state_in_db(IDLE)
+- [x] Bug fix: fetch locations จาก /locations/ แทน /inventory/
+- [x] Bug fix: follow_redirects=True ทุก httpx call
 
-### 3.2 BFS Pathfinding
-- [ ] สร้าง `simulator/pathfinder.py`
-- [ ] เขียน function `bfs(start, goal, obstacles)` คืน list of (row, col)
-- [ ] รองรับ obstacle = ตำแหน่ง AGV ตัวอื่น
-- [ ] เขียน unit test สำหรับ pathfinder
-
-### 3.3 AGV State Machine
-- [ ] สร้าง `simulator/agv_agent.py`
-- [ ] States: `idle → moving → picking → delivering → returning → charging`
-- [ ] ใช้ `asyncio` loop เดิน AGV ทีละ cell ทุก 500ms
-- [ ] Battery drain ระหว่างเคลื่อนที่ (ลดครั้งละ 0.5%)
-- [ ] Auto-dock เมื่อ battery < 15% และ idle
-
-### 3.4 Task Dispatcher
-- [ ] สร้าง `simulator/dispatcher.py`
-- [ ] Poll tasks จาก database ที่ status=queued ทุก 2 วินาที
-- [ ] หา AGV ที่ idle และ battery > 20%
-- [ ] Assign task → อัปเดต task.status=running, agv.state=moving
-- [ ] Priority: high → mid → low
-
-### 3.5 Redis Pub/Sub
-- [ ] สร้าง `simulator/publisher.py`
-- [ ] Publish AGV position ทุก 500ms ไปที่ Redis channel `agv:positions`
-- [ ] Format: `{"agv_id": 1, "row": 3, "col": 5, "state": "moving", "battery": 87.5}`
-
-### 3.6 WebSocket Endpoint
-- [ ] เพิ่ม `app/routers/ws.py`
-- [ ] `WS /ws/agv` — subscribe Redis channel แล้ว broadcast ให้ frontend
-- [ ] Connection manager: track clients ที่ connect อยู่
-- [ ] Auto-reconnect handling
-
-### 3.7 AGV Log
-- [ ] บันทึกทุก movement ลง `agv_logs` table
-- [ ] `GET /agvs/{id}/logs` — ดู history ของ AGV ตัวนั้น
-- [ ] `GET /agvs/logs` — ดู log ทั้งหมด (filter by date)
-
-### 3.8 เพิ่ม simulator service ใน Docker Compose
-- [ ] สร้าง `simulator/Dockerfile`
-- [ ] เพิ่ม service `simulator` ใน docker-compose.yml
-- [ ] depends_on: backend, redis, postgres
-
-**Deliverable:** รัน AGV 3 ตัวพร้อมกัน, position อัปเดตผ่าน WebSocket ได้จริง
+**Deliverable:** ✅ AGV 3 ตัวรันพร้อมกัน, tasks done ครบ, state กลับ idle สมบูรณ์
 
 ---
 
 ## Phase 4 — Frontend Dashboard
-> สัปดาห์ 7–10 (parallel กับ Phase 3) | สถานะ: ⬜ ยังไม่เริ่ม
+> สถานะ: 🟡 กำลังทำ | Branch: feature/phase4-frontend
 
 ### 4.1 Setup
-- [ ] `cd frontend && npm create vite@latest . -- --template react-ts`
-- [ ] ลง dependencies: `tailwindcss shadcn-ui zustand react-router-dom axios socket.io-client`
+- [ ] npm create vite@latest . -- --template react-ts
+- [ ] ลง: tailwindcss, shadcn/ui, zustand, react-router-dom, axios, socket.io-client
 - [ ] Setup Tailwind config
-- [ ] Setup React Router (routes: /, /orders, /inventory, /agvs, /logs)
-- [ ] Setup Zustand store (agvStore, orderStore)
-- [ ] Setup axios instance ชี้ไปที่ `VITE_API_URL`
+- [ ] React Router: /, /orders, /inventory, /agvs, /logs
+- [ ] Zustand store: agvStore, orderStore
+- [ ] axios instance ชี้ไปที่ VITE_API_URL
 
 ### 4.2 Layout & Navigation
-- [ ] สร้าง `components/Layout.tsx` — sidebar + topbar
-- [ ] Sidebar links: Dashboard, Orders, Inventory, AGV Monitor, Logs
-- [ ] Topbar: ชื่อระบบ, สถานะ connection, user badge
+- [ ] components/Layout.tsx — sidebar + topbar
+- [ ] Sidebar: Dashboard, Orders, Inventory, AGV Monitor, Logs
 
 ### 4.3 Warehouse Map
-- [ ] สร้าง `components/WarehouseMap.tsx`
-- [ ] Render grid 16×12 ด้วย SVG หรือ Konva.js
-- [ ] Color-code แต่ละ zone (shelf/inbound/outbound/charge/aisle)
+- [ ] components/WarehouseMap.tsx
+- [ ] SVG grid 16×12, color-code zones
 - [ ] แสดง location code บน shelf cell
-- [ ] Highlight cell เมื่อ hover
 
 ### 4.4 AGV Overlay (Real-time)
-- [ ] สร้าง `components/AGVOverlay.tsx`
-- [ ] Connect WebSocket ที่ `/ws/agv`
-- [ ] แสดง robot icon บน map ตาม position จริง
-- [ ] Color แตกต่างตาม state (idle=gray, moving=green, picking=blue, charging=amber)
-- [ ] Battery arc รอบตัว robot
-- [ ] Tooltip แสดง AGV name, state, battery, current task
-- [ ] Animation เคลื่อนที่ smooth ระหว่าง cell
+- [ ] components/AGVOverlay.tsx
+- [ ] WebSocket connect /ws/agv
+- [ ] Robot icon ตาม position จริง
+- [ ] Color ตาม state, battery arc, tooltip
+- [ ] Animation smooth
 
-### 4.5 Dashboard Page (`/`)
-- [ ] Stat cards: Orders today, Items picked, AGVs active, Low stock alerts
-- [ ] Recent orders table (5 รายการล่าสุด)
-- [ ] AGV status mini cards (3 ตัว)
-- [ ] Warehouse map พร้อม AGV overlay
+### 4.5 Dashboard Page (/)
+- [ ] Stat cards: Orders today, Items picked, AGVs active, Low stock
+- [ ] Recent orders table
+- [ ] Warehouse map + AGV overlay
 
-### 4.6 Orders Page (`/orders`)
-- [ ] ตาราง orders ทั้งหมด + filter by status
-- [ ] Status badge (pending/picking/packed/dispatched) พร้อม color
-- [ ] Form สร้าง order ใหม่ (เลือกสินค้า + quantity)
-- [ ] Order detail modal: แสดง items, pick list, AGV ที่ assigned
-- [ ] Timeline แสดง order history
+### 4.6 Orders Page (/orders)
+- [ ] ตาราง + filter by status
+- [ ] Form สร้าง order ใหม่
+- [ ] Order detail modal
 
-### 4.7 Inventory Page (`/inventory`)
-- [ ] ตาราง stock ทั้งหมด (product, location, quantity)
-- [ ] Highlight แดงเมื่อ quantity ต่ำ
-- [ ] Search/filter by product name หรือ location
-- [ ] คลิก row แล้ว highlight location บน warehouse map
+### 4.7 Inventory Page (/inventory)
+- [ ] ตาราง stock, highlight low stock, search/filter
 
-### 4.8 AGV Monitor Page (`/agvs`)
-- [ ] Warehouse map ขนาดใหญ่พร้อม AGV real-time
-- [ ] AGV cards แสดง state, battery, current task
-- [ ] Form สร้าง manual task (from, to, priority, assign to)
-- [ ] Task queue table
+### 4.8 AGV Monitor Page (/agvs)
+- [ ] Map ขนาดใหญ่ + AGV real-time
+- [ ] AGV cards: state, battery, task
+- [ ] Form สร้าง manual task
 
-### 4.9 Logs Page (`/logs`)
-- [ ] ตาราง AGV movement log ทั้งหมด
-- [ ] Filter by AGV, date range
-- [ ] Export เป็น CSV
+### 4.9 Logs Page (/logs)
+- [ ] AGV movement log, filter, export CSV
 
 ### 4.10 Authentication
-- [ ] Login page
-- [ ] เก็บ JWT token ใน localStorage
-- [ ] Protected routes (redirect ถ้าไม่ได้ login)
+- [ ] Login page, JWT localStorage, protected routes
 
-**Deliverable:** เปิด browser แล้วเห็น dashboard สมบูรณ์, สร้าง order → เห็น AGV เดินไป pick จริง
+**Deliverable:** Dashboard สมบูรณ์, สร้าง order → เห็น AGV เดินไป pick real-time
 
 ---
 
 ## Phase 5 — Polish, Deploy & Portfolio
-> สัปดาห์ 11–14 | สถานะ: ⬜ ยังไม่เริ่ม
+> สถานะ: ⬜ ยังไม่เริ่ม
 
 ### 5.1 Testing
-- [ ] เขียน E2E test ด้วย Playwright
-  - [ ] Login flow
-  - [ ] Create order → AGV assigned → status complete
-  - [ ] WebSocket ได้รับ position update
-- [ ] pytest coverage > 70% สำหรับ backend
+- [ ] E2E Playwright: login, create order, AGV assigned, WebSocket
+- [ ] pytest coverage > 70%
 
 ### 5.2 Deploy Backend (Railway)
-- [ ] สมัคร Railway account
-- [ ] สร้าง project ใหม่ใน Railway
-- [ ] Add service: GitHub repo → backend
-- [ ] Add PostgreSQL plugin
-- [ ] Add Redis plugin
-- [ ] Set environment variables (DATABASE_URL, REDIS_URL, SECRET_KEY)
-- [ ] Deploy แล้วทดสอบ `/health` endpoint
+- [ ] PostgreSQL + Redis plugin, environment variables
 
 ### 5.3 Deploy Frontend (Vercel)
-- [ ] สมัคร Vercel account
-- [ ] Import GitHub repo → frontend folder
-- [ ] Set `VITE_API_URL` = Railway backend URL
-- [ ] Deploy แล้วทดสอบ live
+- [ ] VITE_API_URL = Railway URL
 
 ### 5.4 GitHub Actions CI
-- [ ] สร้าง `.github/workflows/ci.yml`
-- [ ] Trigger: push to main
-- [ ] Jobs: lint (ruff), test (pytest), build frontend
+- [ ] lint + pytest + build on push to main
 
 ### 5.5 README สมบูรณ์
-- [ ] เพิ่ม GIF หรือ video demo (record ด้วย OBS หรือ ShareX)
-- [ ] Live URL (Railway + Vercel)
-- [ ] Architecture diagram (draw.io หรือ Excalidraw)
-- [ ] Tech decisions: อธิบายว่าทำไมถึงเลือก stack นี้
-- [ ] API documentation link (Swagger URL)
+- [ ] GIF/video demo, live URL, architecture diagram, tech decisions
 
-### 5.6 Demo Script (สำหรับ Interview)
-- [ ] เขียน script สาธิต 3 นาที
-  1. เปิด dashboard แสดง warehouse map
-  2. สร้าง order ใหม่
-  3. เห็น AGV รับ task และเดินไป pick
-  4. Order status อัปเดต real-time
-  5. ดู AGV log history
-- [ ] ซ้อมพูดอธิบาย business value ให้ non-tech interviewer เข้าใจได้
+### 5.6 Demo Script (Interview)
+- [ ] Script 3 นาที, อธิบาย business value ให้ non-tech เข้าใจ
 
-**Deliverable:** Live URL พร้อมส่ง recruiter, GitHub repo ดูเป็น professional, demo video แนบ CV ได้
+**Deliverable:** Live URL พร้อมส่ง recruiter, demo video แนบ CV
 
 ---
 
-## Bonus (ทำเพิ่มถ้ามีเวลา)
+## Bonus
 
-- [ ] Multi-AGV collision avoidance (หยุดรอถ้าเส้นทางชน)
-- [ ] Dark/Light mode toggle
-- [ ] Email notification เมื่อ order complete (SendGrid)
-- [ ] Analytics page: throughput per hour, AGV utilization rate
-- [ ] Mobile-responsive dashboard
+- [ ] Multi-AGV collision avoidance
+- [ ] VDA5050 protocol (MQTT)
+- [ ] Analytics page: throughput, AGV utilization
+- [ ] Mobile-responsive
+- [ ] Email notification (SendGrid)
 
 ---
 
-## Tech Decisions (สำหรับอธิบาย interviewer)
+## Tech Decisions
 
-| ทำไมถึงเลือก | เหตุผล |
+| เลือก | เหตุผล |
 |---|---|
-| FastAPI | async native, auto Swagger docs, Python ecosystem เหมาะกับ logistics |
-| PostgreSQL | relational data เหมาะกับ order/inventory, ACID compliance |
-| Redis | low-latency pub/sub สำหรับ real-time AGV position |
-| asyncio | จำลอง AGV หลายตัวพร้อมกันโดยไม่ต้องใช้ thread |
-| Docker Compose | reproducible environment, recruiter รัน demo ได้ทันที |
-| Railway | free tier พอสำหรับ portfolio, deploy ง่ายผ่าน Git |
+| FastAPI | async native, auto Swagger, Python เหมาะกับ logistics |
+| PostgreSQL | relational, ACID compliance |
+| Redis | low-latency pub/sub สำหรับ real-time |
+| asyncio | AGV หลายตัวพร้อมกันโดยไม่ต้องใช้ thread |
+| Docker Compose | reproducible, recruiter รัน demo ได้ทันที |
+| Railway | free tier, deploy ง่าย |
+| BFS Pathfinding | เส้นทางสั้นที่สุด, ต่อยอดเป็น A* ได้ |
 
 ---
 
-*อัปเดตล่าสุด: April 2026*
+## Project Structure
+
+```
+mini-wms/
+├── backend/
+│   ├── app/
+│   │   ├── core/         # security, dependencies
+│   │   ├── models/       # SQLAlchemy tables
+│   │   ├── routers/      # API endpoints + WebSocket
+│   │   ├── schemas/      # Pydantic schemas
+│   │   ├── database.py
+│   │   ├── main.py
+│   │   └── seed.py
+│   ├── alembic/
+│   ├── tests/
+│   ├── Dockerfile
+│   └── requirements.txt
+├── simulator/
+│   ├── grid.py
+│   ├── pathfinder.py
+│   ├── agv_agent.py
+│   ├── dispatcher.py
+│   ├── publisher.py
+│   └── main.py
+├── frontend/             (Phase 4)
+├── docker-compose.yml
+├── PLAN.md
+└── README.md
+```
+
+---
+
+*อัปเดตล่าสุด: April 2026 — Phase 1 ✅ Phase 2 ✅ Phase 3 ✅ Phase 4 🟡*
